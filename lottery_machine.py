@@ -15,6 +15,8 @@ parser.add_argument(
     'file', help='Path to a file with list of participants.', type=file)
 parser.add_argument(
     '--show_page', help='Open a participant page.', action='store_true')
+parser.add_argument(
+    '--include_organizers', help='Include organizers in lottery.', action='store_true')
 args = parser.parse_args()
 
 # Read file.
@@ -22,9 +24,21 @@ participants = []
 header = []
 with open(args.file, 'r', encoding='utf-8') as f:
     lines = f.readlines()
-    header = lines[0].strip().split()
+    header = lines[0].strip().split('\t')
     for line in lines[1:]:
-        participants.append(line.strip().split())
+        # Remove unnecessary whitespace.
+        line = line.strip()
+        # Skip if line is empty.
+        if not line:
+            continue
+
+        data = line.split('\t')
+        assert len(data) == len(header)
+        # Do not include organizers, if flag is not set.
+        if not args.include_organizers and data[3]:
+            continue
+
+        participants.append(data)
 
 # Main loop.
 while True:
@@ -43,7 +57,7 @@ while True:
             import webbrowser
             webbrowser.open(winner_data[-1])
 
-            # Remove entry from the list to avoid duplicates.
+        # Remove entry from the list to avoid duplicates.
         del participants[winner_id]
 
         # Close on empty list or wait for user.
