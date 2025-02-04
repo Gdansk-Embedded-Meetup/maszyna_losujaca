@@ -24,7 +24,7 @@ participants = []
 header = []
 with open(args.file, 'r', encoding='utf-8') as f:
     lines = f.readlines()
-    header = lines[0].strip().split('\t')
+    header = list(lines[0].strip().split(','))
     for line in lines[1:]:
         # Remove unnecessary whitespace.
         line = line.strip()
@@ -32,13 +32,13 @@ with open(args.file, 'r', encoding='utf-8') as f:
         if not line:
             continue
 
-        data = line.split('\t')
+        data = line.split(',')
         assert len(data) == len(header)
         # Do not include organizers, if flag is not set.
-        if not args.include_organizers and data[3]:
+        if not args.include_organizers and data[header.index('Event Host')]:
             continue
 
-        participants.append(data)
+        participants.append([data[0], data[2], data[4], data[16]])
 
 # Main loop.
 while True:
